@@ -56,7 +56,7 @@ return
 end
 
 !Function:Analytical solution for speed y
-real*8 function solYv(tt, g, v0)
+real*8 function solVy(tt, g, v0)
 real(8), intent(IN) :: tt, g, v0
 
 solVy = v0 - g*tt
