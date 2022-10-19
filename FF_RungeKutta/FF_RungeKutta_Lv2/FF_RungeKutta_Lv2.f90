@@ -4,7 +4,7 @@ implicit none
 real(8) , parameter ::  g = 9.8D0, dt = 0.1D0, y0 = 0.D0, x0 = 0.D0, Vx = 20.D0, Vy = 20.D0 
 real(8), allocatable :: y(:), x(:), v1(:), v2(:), t(:)
 real(8) :: solVx, solx, solVy, soly
-real(8) :: k1,k2,k3,k4, l1,l2,l3,l4
+real(8) :: k1,k2,k3,k4, l1,l2,l3,l4, m1,m2,m3,m4, n1,n2,n3,n4
 real(8) :: f1, f2, g1, g2 !g(x),f(y)
 integer :: i, imax=100
 character*60 :: f
@@ -26,6 +26,7 @@ do i=2,imax
     k2=dt*f1(t(i-1)+dt/2.D0,v2(i-1)+k1/2.D0,g)
     k3=dt*f1(t(i-1)+dt/2.D0,v2(i-1)+k2/2.D0,g)
     k4=dt*f1(t(i-1)+dt,v2(i-1)+k3,g)
+    
     t(i)=t(i-1)+dt
     v2(i)=v2(i-1)+(k1+2.D0*k2+2.D0*k3+k4)/6.D0
 
@@ -33,23 +34,20 @@ do i=2,imax
     l2=dt*g1(t(i-1)+dt/2.D0,v1(i-1)+l1/2.D0)
     l3=dt*g1(t(i-1)+dt/2.D0,v1(i-1)+l2/2.D0)
     l4=dt*g1(t(i-1)+dt,v1(i-1)+l3)
-    t(i)=t(i-1)+dt
+    
     v1(i)=v1(i-1)+(l1+2.D0*l2+2.D0*l3+l4)/6.D0
 
-end do
+    m1=dt*f2(t(i-1),y(i-1),g,v2(i-1))
+    m2=dt*f2(t(i-1)+dt/2.D0,y(i-1)+m1/2.D0,g,v2(i-1)+k1/2.D0)
+    m3=dt*f2(t(i-1)+dt/2.D0,y(i-1)+m2/2.D0,g,v2(i-1)+k2/2.D0)
+    m4=dt*f2(t(i-1)+dt,y(i-1)+m3,g,v2(i-1)+k3)
+    y(i)=y(i-1)+(m1+2.D0*m2+2.D0*m3+m4)/6.D0
 
-do i=2,imax
-    k1=dt*f2(t(i-1),y(i-1),g,v2(1))
-    k2=dt*f2(t(i-1)+dt/2.D0,y(i-1)+k1/2.D0,g,v2(1))
-    k3=dt*f2(t(i-1)+dt/2.D0,y(i-1)+k2/2.D0,g,v2(1))
-    k4=dt*f2(t(i-1)+dt,y(i-1)+k3,g,v2(1))
-    y(i)=y(i-1)+(k1+2.D0*k2+2.D0*k3+k4)/6.D0
-
-    l1=dt*g2(t(i-1),x(i-1),v1(1))
-    l2=dt*g2(t(i-1)+dt/2.D0,x(i-1)+l1/2.D0,v1(1))
-    l3=dt*g2(t(i-1)+dt/2.D0,x(i-1)+l2/2.D0,v1(1))
-    l4=dt*g2(t(i-1)+dt,x(i-1)+l3,v1(1))
-    x(i)=x(i-1)+(l1+2.D0*l2+2.D0*l3+l4)/6.D0
+    n1=dt*g2(t(i-1),x(i-1),v1(1))
+    n2=dt*g2(t(i-1)+dt/2.D0,x(i-1)+n1/2.D0,v1(i-1)+l1/2.D0)
+    n3=dt*g2(t(i-1)+dt/2.D0,x(i-1)+n2/2.D0,v1(i-1)+l2/2.D0)
+    n4=dt*g2(t(i-1)+dt,x(i-1)+n3,v1(i-1)+l3)
+    x(i)=x(i-1)+(n1+2.D0*n2+2.D0*n3+n4)/6.D0
 
 end do
 
@@ -68,10 +66,10 @@ z = -g
 return
 end function f1
 
-real(8) function f2(t,y,g,v0) result(z)
-real(8), intent(IN) :: y,g,t,v0
+real(8) function f2(t,y,g,v) result(z)
+real(8), intent(IN) :: y,g,t,v
 
-z = -g*t + v0
+z = v
 
 return
 end function f2
@@ -84,10 +82,10 @@ z = 0.D0
 return
 end function g1
 
-real(8) function g2(t,x,v0) result(z)
-real(8), intent(IN) :: t,x,v0
+real(8) function g2(t,x,v) result(z)
+real(8), intent(IN) :: t,x,v
 
-z = v0
+z = v
 
 return
 end function g2

@@ -4,7 +4,7 @@ implicit none
 real(8) , parameter ::  g = 9.8D0, dt = 0.1D0, y0 = 0.D0, Vy = 20.D0 
 real(8), allocatable :: y(:), v(:), t(:)
 real(8) :: solVy, soly
-real(8) :: k1,k2,k3,k4
+real(8) :: k1,k2,k3,k4,l1,l2,l3,l4
 real(8) :: f1, f2
 integer :: i, imax=100
 character*40 :: f
@@ -20,19 +20,18 @@ v(1) = Vy
 f="(2x,F10.2,6x,F10.2, 6x, F10.2,6x,F10.2)"
 
 do i=2,imax
-    k1=dt*f1(t(i-1),v(i-1),g)
-    k2=dt*f1(t(i-1)+dt/2.D0,v(i-1)+k1/2.D0,g)
-    k3=dt*f1(t(i-1)+dt/2.D0,v(i-1)+k2/2.D0,g)
-    k4=dt*f1(t(i-1)+dt,v(i-1)+k3,g)
-    t(i)=t(i-1)+dt
-    v(i)=v(i-1)+(k1+2.D0*k2+2.D0*k3+k4)/6.D0
-end do
+    l1=dt*f1(t(i-1),v(i-1),g)
+    l2=dt*f1(t(i-1)+dt/2.D0,v(i-1)+l1/2.D0,g)
+    l3=dt*f1(t(i-1)+dt/2.D0,v(i-1)+l2/2.D0,g)
+    l4=dt*f1(t(i-1)+dt,v(i-1)+l3,g)
 
-do i=2,imax
-    k1=dt*f2(t(i-1),y(i-1),g,v(1))
-    k2=dt*f2(t(i-1)+dt/2.D0,y(i-1)+k1/2.D0,g,v(1))
-    k3=dt*f2(t(i-1)+dt/2.D0,y(i-1)+k2/2.D0,g,v(1))
-    k4=dt*f2(t(i-1)+dt,y(i-1)+k3,g,v(1))
+    t(i)=t(i-1)+dt
+    v(i)=v(i-1)+(l1+2.D0*l2+2.D0*l3+l4)/6.D0
+
+    k1=dt*f2(t(i-1),y(i-1),g,v(i-1))
+    k2=dt*f2(t(i-1)+dt/2.D0,y(i-1)+k1/2.D0,g,v(i-1)+l1/2.D0)
+    k3=dt*f2(t(i-1)+dt/2.D0,y(i-1)+k2/2.D0,g,v(i-1)+l2/2.D0)
+    k4=dt*f2(t(i-1)+dt,y(i-1)+k3,g,v(i-1)+l3)
     y(i)=y(i-1)+(k1+2.D0*k2+2.D0*k3+k4)/6.D0
 end do
 
@@ -51,10 +50,10 @@ z = -g
 return
 end function f1
 
-real(8) function f2(t,y,g,v0) result(z)
-real(8), intent(IN) :: y,g,t,v0
+real(8) function f2(t,y,g,v) result(z)
+real(8), intent(IN) :: y,g,t,v
 
-z = -g*t + v0
+z = v
 
 return
 end function f2
