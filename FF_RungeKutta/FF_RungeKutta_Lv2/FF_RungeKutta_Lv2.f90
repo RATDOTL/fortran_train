@@ -22,33 +22,40 @@ v2(1) = Vy
 f="(2x,F10.2,6x,F10.2, 6x, F10.2,6x,F10.2, 6x,F10.2)"
 
 do i=2,imax
-    k1=dt*f1(t(i-1),v2(i-1),g)
-    k2=dt*f1(t(i-1)+dt/2.D0,v2(i-1)+k1/2.D0,g)
-    k3=dt*f1(t(i-1)+dt/2.D0,v2(i-1)+k2/2.D0,g)
-    k4=dt*f1(t(i-1)+dt,v2(i-1)+k3,g)
+    !f(y)
+    k1=dt*f1(t(i-1),y(i-1),v2(i-1),g)
+    m1=dt*f2(t(i-1),y(i-1),v2(i-1),g)
+
+    k2=dt*f1(t(i-1)+dt/2.D0,y(i-1)+m1/2.D0,v2(i-1)+k1/2.D0,g)
+    m2=dt*f2(t(i-1)+dt/2.D0,y(i-1)+m1/2.D0,v2(i-1)+k1/2.D0,g)
+
+    k3=dt*f1(t(i-1)+dt/2.D0,y(i-1)+m2/2.D0,v2(i-1)+k2/2.D0,g)
+    m3=dt*f2(t(i-1)+dt/2.D0,y(i-1)+m2/2.D0,v2(i-1)+k2/2.D0,g)
+
+    k4=dt*f1(t(i-1)+dt,y(i-1)+m3,v2(i-1)+k3,g)
+    m4=dt*f2(t(i-1)+dt,y(i-1)+m3,v2(i-1)+k3,g)
     
-    t(i)=t(i-1)+dt
+    
     v2(i)=v2(i-1)+(k1+2.D0*k2+2.D0*k3+k4)/6.D0
-
-    l1=dt*g1(t(i-1),v1(i-1))
-    l2=dt*g1(t(i-1)+dt/2.D0,v1(i-1)+l1/2.D0)
-    l3=dt*g1(t(i-1)+dt/2.D0,v1(i-1)+l2/2.D0)
-    l4=dt*g1(t(i-1)+dt,v1(i-1)+l3)
-    
-    v1(i)=v1(i-1)+(l1+2.D0*l2+2.D0*l3+l4)/6.D0
-
-    m1=dt*f2(t(i-1),y(i-1),g,v2(i-1))
-    m2=dt*f2(t(i-1)+dt/2.D0,y(i-1)+m1/2.D0,g,v2(i-1)+k1/2.D0)
-    m3=dt*f2(t(i-1)+dt/2.D0,y(i-1)+m2/2.D0,g,v2(i-1)+k2/2.D0)
-    m4=dt*f2(t(i-1)+dt,y(i-1)+m3,g,v2(i-1)+k3)
     y(i)=y(i-1)+(m1+2.D0*m2+2.D0*m3+m4)/6.D0
 
+    !g(x)
+    l1=dt*g1(t(i-1),x(i-1),v1(i-1))
     n1=dt*g2(t(i-1),x(i-1),v1(1))
+
+    l2=dt*g1(t(i-1)+dt/2.D0,x(i-1)+n1/2.D0,v1(i-1)+l1/2.D0)
     n2=dt*g2(t(i-1)+dt/2.D0,x(i-1)+n1/2.D0,v1(i-1)+l1/2.D0)
+
+    l3=dt*g1(t(i-1)+dt/2.D0,x(i-1)+n2/2.D0,v1(i-1)+l2/2.D0)
     n3=dt*g2(t(i-1)+dt/2.D0,x(i-1)+n2/2.D0,v1(i-1)+l2/2.D0)
+
+    l4=dt*g1(t(i-1)+dt,x(i-1)+n3,v1(i-1)+l3)
     n4=dt*g2(t(i-1)+dt,x(i-1)+n3,v1(i-1)+l3)
+    
+    v1(i)=v1(i-1)+(l1+2.D0*l2+2.D0*l3+l4)/6.D0
     x(i)=x(i-1)+(n1+2.D0*n2+2.D0*n3+n4)/6.D0
 
+    t(i)=t(i-1)+dt
 end do
 
 do i=1,100
@@ -58,24 +65,24 @@ end do
 
 end program FF_RungeKutta_Lv2
 
-real(8) function f1(t,y,g) result(z)
-real(8), intent(IN) :: y,g,t
+real(8) function f1(t,y,v,g) result(z)
+real(8), intent(IN) :: t,y,v,g
 
 z = -g
 
 return
 end function f1
 
-real(8) function f2(t,y,g,v) result(z)
-real(8), intent(IN) :: y,g,t,v
+real(8) function f2(t,y,v,g) result(z)
+real(8), intent(IN) :: t,y,v,g
 
 z = v
 
 return
 end function f2
 
-real(8) function g1(t,x) result(z)
-real(8), intent(IN) :: t,x
+real(8) function g1(t,x,v) result(z)
+real(8), intent(IN) :: t,x,v
 
 z = 0.D0
 
