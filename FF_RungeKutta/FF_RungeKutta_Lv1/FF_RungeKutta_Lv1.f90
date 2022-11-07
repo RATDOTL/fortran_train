@@ -8,6 +8,7 @@ real(8) :: k1,k2,k3,k4,l1,l2,l3,l4
 real(8) :: f1, f2
 integer :: i, imax=100
 character*40 :: f
+character*100 :: s
 allocate(y(imax), v(imax), t(imax))
 
 open(1,file='data_FF_RungeKutta_Lv1.dat')
@@ -20,27 +21,28 @@ v(1) = Vy
 f="(2x,F10.2,6x,F10.2, 6x, F10.2,6x,F10.2)"
 
 do i=2,imax
-    l1=dt*f1(t(i-1),y(i-1),v(i-1),g)
-    k1=dt*f2(t(i-1),y(i-1),v(i-1),g)
+    k1=dt*f1(t(i-1),y(i-1),v(i-1),g)
+    l1=dt*f2(t(i-1),v(i-1))
 
-    l2=dt*f1(t(i-1)+dt/2.D0,y(i-1)+k1/2.D0,v(i-1)+l1/2.D0,g)
-    k2=dt*f2(t(i-1)+dt/2.D0,y(i-1)+k1/2.D0,v(i-1)+l1/2.D0,g)
+    k2=dt*f1(t(i-1)+dt/2.D0,y(i-1)+l1/2.D0,v(i-1)+k1/2.D0,g)
+    l2=dt*f2(t(i-1)+dt/2.D0,v(i-1)+k1/2.D0)
 
-    l3=dt*f1(t(i-1)+dt/2.D0,y(i-1)+k2/2.D0,v(i-1)+l2/2.D0,g)
-    k3=dt*f2(t(i-1)+dt/2.D0,y(i-1)+k2/2.D0,v(i-1)+l2/2.D0,g)
+    k3=dt*f1(t(i-1)+dt/2.D0,y(i-1)+l2/2.D0,v(i-1)+k2/2.D0,g)
+    l3=dt*f2(t(i-1)+dt/2.D0,v(i-1)+k2/2.D0)
 
-    l4=dt*f1(t(i-1)+dt,y(i-1)+k3,v(i-1)+l3,g)
-    k4=dt*f2(t(i-1)+dt,y(i-1)+k3,v(i-1)+l3,g)
+    k4=dt*f1(t(i-1)+dt,y(i-1)+l3,v(i-1)+k3,g)
+    l4=dt*f2(t(i-1)+dt,v(i-1)+k3)
 
     t(i)=t(i-1)+dt
-    v(i)=v(i-1)+(l1+2.D0*l2+2.D0*l3+l4)/6.D0
-    y(i)=y(i-1)+(k1+2.D0*k2+2.D0*k3+k4)/6.D0
+    v(i)=v(i-1)+(k1+2.D0*k2+2.D0*k3+k4)/6.D0
+    y(i)=y(i-1)+(l1+2.D0*l2+2.D0*l3+l4)/6.D0
 end do
 
 do i=1,100
     write(1,f)t(i),0.D0,y(i),v(i) 
     write(2,f)t(i),0.D0,soly(t(i),g,y(1),v(1)),solVy(t(i),g,v(1))
 end do
+
 
 end program FF_RungeKutta_Lv1
 
@@ -52,8 +54,8 @@ z = -g
 return
 end function f1
 
-real(8) function f2(t,y,v,g) result(z)
-real(8), intent(IN) :: t,y,v,g
+real(8) function f2(t,v) result(z)
+real(8), intent(IN) :: t,v
 
 z = v
 

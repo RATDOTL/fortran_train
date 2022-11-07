@@ -22,16 +22,16 @@ f="(2x,F10.2,6x,F10.2, 6x, F10.2,6x,F10.2)"
 
 do i=2,imax
     k1=dt*f1(t(i-1),v(i-1),x(i-1),w)
-    l1=dt*f2(t(i-1),v(i-1),x(i-1),w)
+    l1=dt*f2(t(i-1),v(i-1))
 
     k2=dt*f1(t(i-1)+dt/2.D0,v(i-1)+k1/2.D0,x(i-1)+l1/2.D0,w)
-    l2=dt*f2(t(i-1)+dt/2.D0,v(i-1)+k1/2.D0,x(i-1)+l1/2.D0,w)
+    l2=dt*f2(t(i-1)+dt/2.D0,v(i-1)+k1/2.D0)
 
     k3=dt*f1(t(i-1)+dt/2.D0,v(i-1)+k2/2.D0,x(i-1)+l2/2.D0,w)
-    l3=dt*f2(t(i-1)+dt/2.D0,v(i-1)+k2/2.D0,x(i-1)+l2/2.D0,w)
+    l3=dt*f2(t(i-1)+dt/2.D0,v(i-1)+k2/2.D0)
 
     k4=dt*f1(t(i-1)+dt,v(i-1)+k3,x(i-1)+k3,w)
-    l4=dt*f2(t(i-1)+dt,v(i-1)+k3,x(i-1)+l3,w)
+    l4=dt*f2(t(i-1)+dt,v(i-1)+k3)
 
     t(i)=t(i-1)+dt
     v(i)=v(i-1)+(k1+2.D0*k2+2.D0*k3+k4)/6.D0
@@ -54,8 +54,8 @@ z = -w**2*x
 return
 end function f1
 
-real(8) function f2(t,v,x,w) result(z)
-real(8), intent(IN) :: t,v,x,w
+real(8) function f2(t,v) result(z)
+real(8), intent(IN) :: t,v
 
 z = v
 
