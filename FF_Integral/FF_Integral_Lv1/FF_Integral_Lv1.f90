@@ -1,4 +1,4 @@
-
+! The function y=f(x) can be integrated to any point with respect to x. Compare the results of the rectangular formula, trapezoidal formula, and Simpson's formula with analytical solutions.
 program FF_Integral_Lv1
 implicit none
 integer, parameter :: nmax = 64
